@@ -26,4 +26,4 @@
 
 1. Скачайте или клонируйте репозиторий:
    ```bash
-   git clone https://github.com/your-username/mindful-shopper.git
+   git clone https://github.com/lunesko/mindful-shopper.git
