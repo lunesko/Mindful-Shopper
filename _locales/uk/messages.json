@@ -44,5 +44,6 @@
     "ebay_description": { "message": "Онлайн-маркетплейс" },
     "visit_product_page": { "message": "Відвідайте будь-яку сторінку товару, щоб побачити порівняння цін" },
     "click_buy_buttons": { "message": "Клікніть на кнопки покупки, щоб порівняти ціни в різних магазинах" },
-    "show_more_stores": { "message": "Показати ще магазини" }
+    "show_more_stores": { "message": "Показати ще магазини" },
+    "loading_prices": { "message": "Завантаження цін..." }
   }

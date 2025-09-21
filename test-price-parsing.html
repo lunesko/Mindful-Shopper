@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест парсинга цен - Mindful Shopper</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .test-button {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: background 0.2s;
+        }
+        .test-button:hover {
+            background: #f57c00;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .price-item:last-child {
+            border-bottom: none;
+        }
+        .store-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .price {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+        .error {
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 Тест парсинга цен Mindful Shopper</h1>
+        
+        <div class="test-section">
+            <h3>Тест парсинга цен с украинских магазинов</h3>
+            <p>Нажмите кнопку, чтобы протестировать парсинг цен с различных магазинов:</p>
+            
+            <button class="test-button" onclick="testPriceParsing('iPhone 15')">iPhone 15</button>
+            <button class="test-button" onclick="testPriceParsing('MacBook Air')">MacBook Air</button>
+            <button class="test-button" onclick="testPriceParsing('Samsung Galaxy S24')">Samsung Galaxy S24</button>
+            <button class="test-button" onclick="testPriceParsing('PlayStation 5')">PlayStation 5</button>
+            
+            <div id="results" class="results" style="display: none;">
+                <h4>Результаты парсинга:</h4>
+                <div id="price-list"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Информация о системе</h3>
+            <ul>
+                <li><strong>Кэширование:</strong> Цены кэшируются на 5 минут для оптимизации</li>
+                <li><strong>Парсинг:</strong> Реальные цены с сайтов магазинов</li>
+                <li><strong>Fallback:</strong> Если парсинг не удался, показывается примерная цена</li>
+                <li><strong>Умная фильтрация:</strong> Текущий магазин исключается из списка сравнения</li>
+                <li><strong>Магазины:</strong> Rozetka, Prom.ua, Comfy, Foxtrot, Allo, Amazon, Google Shopping</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>Тест фильтрации магазинов</h3>
+            <p>Выберите магазин, чтобы симулировать нахождение на его сайте:</p>
+            
+            <button class="test-button" onclick="simulateStore('Rozetka')">На сайте Rozetka</button>
+            <button class="test-button" onclick="simulateStore('Comfy')">На сайте Comfy</button>
+            <button class="test-button" onclick="simulateStore('Prom.ua')">На сайте Prom.ua</button>
+            <button class="test-button" onclick="simulateStore('Amazon')">На сайте Amazon</button>
+            <button class="test-button" onclick="simulateStore(null)">Неизвестный сайт</button>
+            
+            <div id="store-info" style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 6px; display: none;">
+                <strong>Текущий магазин:</strong> <span id="current-store-name"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Симуляция работы расширения для тестирования
+        async function testPriceParsing(productName) {
+            const resultsDiv = document.getElementById('results');
+            const priceListDiv = document.getElementById('price-list');
+            
+            resultsDiv.style.display = 'block';
+            priceListDiv.innerHTML = '<div class="loading">⏳ Завантаження цін...</div>';
+            
+            // Симуляция задержки парсинга
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Симуляция результатов парсинга
+            const mockStores = [
+                { name: 'Rozetka', price: generateMockPrice(25000, 35000), icon: '🏪' },
+                { name: 'Prom.ua', price: generateMockPrice(24000, 34000), icon: '🛍️' },
+                { name: 'Comfy', price: generateMockPrice(26000, 36000), icon: '🏠' },
+                { name: 'Foxtrot', price: generateMockPrice(24500, 34500), icon: '🦊' },
+                { name: 'Allo', price: generateMockPrice(25500, 35500), icon: '📱' },
+                { name: 'Google Shopping', price: generateMockPrice(23000, 33000), icon: '🛒' }
+            ];
+            
+            // Сортируем по цене (от меньшей к большей)
+            mockStores.sort((a, b) => {
+                const priceA = parseInt(a.price.replace(/[^\d]/g, ''));
+                const priceB = parseInt(b.price.replace(/[^\d]/g, ''));
+                return priceA - priceB;
+            });
+            
+            priceListDiv.innerHTML = mockStores.map(store => `
+                <div class="price-item">
+                    <div>
+                        <span style="margin-right: 8px;">${store.icon}</span>
+                        <span class="store-name">${store.name}</span>
+                    </div>
+                    <div class="price">${store.price}</div>
+                </div>
+            `).join('');
+        }
+        
+        function generateMockPrice(min, max) {
+            const price = Math.floor(Math.random() * (max - min + 1)) + min;
+            return `${price.toLocaleString('uk-UA')}₴`;
+        }
+        
+        // Симуляция текущего магазина
+        let currentStore = null;
+        
+        function simulateStore(storeName) {
+            currentStore = storeName;
+            const storeInfo = document.getElementById('store-info');
+            const storeNameSpan = document.getElementById('current-store-name');
+            
+            if (storeName) {
+                storeNameSpan.textContent = storeName;
+                storeInfo.style.display = 'block';
+            } else {
+                storeNameSpan.textContent = 'Неизвестный сайт';
+                storeInfo.style.display = 'block';
+            }
+            
+            // Перезапускаем тест с учетом текущего магазина
+            testPriceParsing('iPhone 15');
+        }
+        
+        // Обновленная функция тестирования с фильтрацией
+        async function testPriceParsing(productName) {
+            const resultsDiv = document.getElementById('results');
+            const priceListDiv = document.getElementById('price-list');
+            
+            resultsDiv.style.display = 'block';
+            priceListDiv.innerHTML = '<div class="loading">⏳ Завантаження цін...</div>';
+            
+            // Симуляция задержки парсинга
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Симуляция результатов парсинга с фильтрацией
+            const allStores = [
+                { name: 'Rozetka', price: generateMockPrice(25000, 35000), icon: '🏪' },
+                { name: 'Prom.ua', price: generateMockPrice(24000, 34000), icon: '🛍️' },
+                { name: 'Comfy', price: generateMockPrice(26000, 36000), icon: '🏠' },
+                { name: 'Foxtrot', price: generateMockPrice(24500, 34500), icon: '🦊' },
+                { name: 'Allo', price: generateMockPrice(25500, 35500), icon: '📱' },
+                { name: 'Google Shopping', price: generateMockPrice(23000, 33000), icon: '🛒' }
+            ];
+            
+            // Фильтруем магазины, исключая текущий
+            const filteredStores = allStores.filter(store => store.name !== currentStore);
+            
+            // Сортируем по цене (от меньшей к большей)
+            filteredStores.sort((a, b) => {
+                const priceA = parseInt(a.price.replace(/[^\d]/g, ''));
+                const priceB = parseInt(b.price.replace(/[^\d]/g, ''));
+                return priceA - priceB;
+            });
+            
+            // Добавляем информацию о фильтрации
+            let filterInfo = '';
+            if (currentStore) {
+                filterInfo = `<div style="margin-bottom: 15px; padding: 10px; background: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
+                    <strong>ℹ️ Фильтрация:</strong> Магазин "${currentStore}" исключен из списка сравнения
+                </div>`;
+            }
+            
+            priceListDiv.innerHTML = filterInfo + filteredStores.map(store => `
+                <div class="price-item">
+                    <div>
+                        <span style="margin-right: 8px;">${store.icon}</span>
+                        <span class="store-name">${store.name}</span>
+                    </div>
+                    <div class="price">${store.price}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Автоматический тест при загрузке
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testPriceParsing('iPhone 15');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

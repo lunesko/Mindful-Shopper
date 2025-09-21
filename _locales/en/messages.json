@@ -44,5 +44,6 @@
     "ebay_description": { "message": "Online marketplace" },
     "visit_product_page": { "message": "Visit any product page to see price comparison" },
     "click_buy_buttons": { "message": "Click on buy buttons to compare prices across stores" },
-    "show_more_stores": { "message": "Show more stores" }
+    "show_more_stores": { "message": "Show more stores" },
+    "loading_prices": { "message": "Loading prices..." }
   }

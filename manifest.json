@@ -3,7 +3,7 @@
     "name": "Mindful Shopper",
     "description": "Pause before you purchase. Choose mindfully.",
     "version": "1.0",
-    "permissions": ["storage", "notifications", "alarms"],
+    "permissions": ["storage", "notifications", "alarms", "activeTab"],
     "host_permissions": ["<all_urls>"],
     "action": {
       "default_popup": "popup.html",

@@ -83,9 +83,7 @@ async function createMindfulPopup() {
     return fallback;
   };
 
-  // Получаем список магазинов для отображения
-  const stores = await getPriceComparisonStores(productInfo.name, productInfo.price);
-
+  // Показываем индикатор загрузки
   popup.innerHTML = `
     <div style="text-align: center; margin-bottom: 20px;">
       <div style="font-size: 48px; margin-bottom: 10px;">🛒</div>
@@ -103,80 +101,13 @@ async function createMindfulPopup() {
         <span style="margin-right: 8px;">💰</span>
         ${getLocalizedMessage('stores_for_purchase', 'Stores for purchase')}
       </h4>
-      <div id="stores-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
-        ${stores.slice(0, 3).map(store => `
-          <div style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
-            <div style="width: 32px; height: 32px; background: #f0f0f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 16px;">
-              ${store.icon}
-            </div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="font-weight: 600; color: #333; font-size: 13px; margin-bottom: 2px;">${store.name}</div>
-              <div style="font-size: 11px; color: #666;">${store.description}</div>
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-end; margin-left: 12px;">
-              <div style="font-weight: bold; color: #2e7d32; font-size: 14px;">${store.price}</div>
-              <a href="${store.url}" target="_blank" style="
-                background: #ff9800;
-                color: white;
-                text-decoration: none;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 600;
-                margin-top: 4px;
-                transition: all 0.2s;
-              " onmouseover="this.style.background='#f57c00'" onmouseout="this.style.background='#ff9800'">
-                ${getLocalizedMessage('to_store', 'To store')}
-              </a>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-      ${stores.length > 3 ? `
-        <button id="show-more-stores" style="
-          width: 100%;
-          background: #f8f9fa;
-          color: #495057;
-          border: 1px solid #dee2e6;
-          border-radius: 6px;
-          padding: 8px 12px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          margin-top: 8px;
-          transition: all 0.2s;
-        " onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
-          ${getLocalizedMessage('show_more_stores', 'Показати ще магазини')} (${stores.length - 3})
-        </button>
-      ` : ''}
-    </div>
-
-    <!-- Google AdSense Section -->
-    <div style="margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-      <div style="text-align: center; margin-bottom: 12px;">
-        <span style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px;">Advertisement</span>
-      </div>
-      <div id="google-ads" style="
-        width: 100%;
-        height: 100px;
-        background: #ffffff;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6c757d;
-        font-size: 12px;
-        text-align: center;
-      ">
-        <div>
-          <div style="font-size: 24px; margin-bottom: 4px;">📢</div>
-          <div>Google AdSense</div>
-          <div style="font-size: 10px; margin-top: 2px;">Реклама буде тут</div>
+      <div id="stores-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; text-align: center;">
+        <div style="display: flex; align-items: center; justify-content: center; color: #666;">
+          <div style="margin-right: 10px;">⏳</div>
+          <div>${getLocalizedMessage('loading_prices', 'Завантаження цін...')}</div>
         </div>
       </div>
     </div>
-
 
     <div style="text-align: center;">
       <button id="close-popup-btn" style="
@@ -191,19 +122,68 @@ async function createMindfulPopup() {
     </div>
   `;
 
-  // Добавляем обработчики событий
-  const closePopupBtn = popup.querySelector('#close-popup-btn');
-  const showMoreBtn = popup.querySelector('#show-more-stores');
+  document.body.appendChild(popup);
 
+  // Добавляем обработчик закрытия
+  const closePopupBtn = popup.querySelector('#close-popup-btn');
   closePopupBtn.addEventListener('click', () => {
     popup.remove();
   });
 
-  // Обработчик для кнопки "Показать еще магазины"
-  if (showMoreBtn) {
+  // Получаем список магазинов для отображения
+  const stores = await getPriceComparisonStores(productInfo.name, productInfo.price);
+
+  // Обновляем содержимое popup с загруженными ценами
+  const storesList = popup.querySelector('#stores-list');
+  storesList.innerHTML = stores.slice(0, 3).map(store => `
+    <div style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+      <div style="width: 32px; height: 32px; background: #f0f0f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 16px;">
+        ${store.icon}
+      </div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-weight: 600; color: #333; font-size: 13px; margin-bottom: 2px;">${store.name}</div>
+        <div style="font-size: 11px; color: #666;">${store.description}</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; margin-left: 12px;">
+        <div style="font-weight: bold; color: #2e7d32; font-size: 14px;">${store.price}</div>
+        <a href="${store.url}" target="_blank" style="
+          background: #ff9800;
+          color: white;
+          text-decoration: none;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          margin-top: 4px;
+          transition: all 0.2s;
+        " onmouseover="this.style.background='#f57c00'" onmouseout="this.style.background='#ff9800'">
+          ${getLocalizedMessage('to_store', 'To store')}
+        </a>
+      </div>
+    </div>
+  `).join('');
+
+  // Добавляем кнопку "Показать еще" если нужно
+  if (stores.length > 3) {
+    const showMoreBtn = document.createElement('button');
+    showMoreBtn.id = 'show-more-stores';
+    showMoreBtn.style.cssText = `
+      width: 100%;
+      background: #f8f9fa;
+      color: #495057;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    `;
+    showMoreBtn.textContent = `${getLocalizedMessage('show_more_stores', 'Показати ще магазини')} (${stores.length - 3})`;
+    
     showMoreBtn.addEventListener('click', () => {
-      const storesList = popup.querySelector('#stores-list');
-      const allStores = stores.map(store => `
+      storesList.innerHTML = stores.map(store => `
         <div style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
           <div style="width: 32px; height: 32px; background: #f0f0f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 16px;">
             ${store.icon}
@@ -230,11 +210,49 @@ async function createMindfulPopup() {
           </div>
         </div>
       `).join('');
-      
-      storesList.innerHTML = allStores;
       showMoreBtn.style.display = 'none';
     });
+
+    storesList.parentNode.appendChild(showMoreBtn);
   }
+
+  // Добавляем рекламный блок
+  const adSection = document.createElement('div');
+  adSection.style.cssText = `
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  `;
+  adSection.innerHTML = `
+    <div style="text-align: center; margin-bottom: 12px;">
+      <span style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px;">Advertisement</span>
+    </div>
+    <div id="google-ads" style="
+      width: 100%;
+      height: 100px;
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6c757d;
+      font-size: 12px;
+      text-align: center;
+    ">
+      <div>
+        <div style="font-size: 24px; margin-bottom: 4px;">📢</div>
+        <div>Google AdSense</div>
+        <div style="font-size: 10px; margin-top: 2px;">Реклама буде тут</div>
+      </div>
+    </div>
+  `;
+
+  // Вставляем рекламный блок перед кнопкой закрытия
+  const closeButton = popup.querySelector('#close-popup-btn');
+  closeButton.parentNode.insertBefore(adSection, closeButton);
 
   // Закрытие по клику вне popup
   popup.addEventListener('click', (e) => {
@@ -242,8 +260,6 @@ async function createMindfulPopup() {
       popup.remove();
     }
   });
-
-  document.body.appendChild(popup);
 }
 
 // Функция для определения региона и языка
@@ -268,21 +284,84 @@ function detectRegionAndLanguage() {
   }
 }
 
-// Функция для получения цен с внешних сайтов
+// Функция для определения текущего магазина
+function getCurrentStore() {
+  const hostname = window.location.hostname.toLowerCase();
+  
+  // Украинские магазины
+  if (hostname.includes('rozetka')) return 'Rozetka';
+  if (hostname.includes('prom.ua')) return 'Prom.ua';
+  if (hostname.includes('comfy')) return 'Comfy';
+  if (hostname.includes('foxtrot')) return 'Foxtrot';
+  if (hostname.includes('allo')) return 'Allo';
+  
+  // Европейские магазины
+  if (hostname.includes('amazon.de')) return 'Amazon';
+  if (hostname.includes('mediamarkt')) return 'MediaMarkt';
+  if (hostname.includes('saturn')) return 'Saturn';
+  if (hostname.includes('zalando')) return 'Zalando';
+  if (hostname.includes('idealo')) return 'Idealo';
+  
+  // Американские магазины
+  if (hostname.includes('amazon.com')) return 'Amazon';
+  if (hostname.includes('ebay')) return 'eBay';
+  if (hostname.includes('walmart')) return 'Walmart';
+  if (hostname.includes('bestbuy')) return 'Best Buy';
+  if (hostname.includes('target')) return 'Target';
+  
+  return null; // Неизвестный магазин
+}
+
+// Функция для получения цен с внешних сайтов через background script
 async function getExternalPrice(storeName, productName, currentPrice, region = 'ukraine') {
   try {
-    // Для демонстрации возвращаем случайную цену в диапазоне от текущей
-    // В реальном приложении здесь был бы API вызов или веб-скрапинг
+    // Отправляем запрос в background script для получения реальной цены
+    const response = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({
+        action: 'getPrice',
+        storeName: storeName,
+        productName: productName,
+        region: region
+      }, (response) => {
+        resolve(response);
+      });
+    });
+
+    if (response && response.success && response.price) {
+      return response.price;
+    }
+
+    // Если не удалось получить реальную цену, используем fallback
+    console.warn(`Failed to get real price from ${storeName}, using fallback`);
+    return getFallbackPrice(currentPrice, region);
+  } catch (error) {
+    console.warn(`Failed to get price from ${storeName}:`, error);
+    return getFallbackPrice(currentPrice, region);
+  }
+}
+
+// Fallback функция для генерации примерной цены
+function getFallbackPrice(currentPrice, region = 'ukraine') {
+  try {
     let basePrice = parseFloat(currentPrice?.replace(/[^\d.,]/g, '').replace(',', '.')) || 1000;
     
     // Ограничиваем базовую цену разумными пределами
-    if (basePrice > 100000) {
-      basePrice = 100000; // Максимум 100,000
+    if (basePrice > 50000) {
+      basePrice = 50000; // Максимум 50,000 для fallback
     } else if (basePrice < 100) {
       basePrice = 1000; // Минимум 1,000 если цена слишком мала
     }
     
-    const variation = 0.15; // ±15% вариация
+    // Более реалистичная вариация в зависимости от цены товара
+    let variation;
+    if (basePrice < 1000) {
+      variation = 0.15; // ±15% для дешевых товаров
+    } else if (basePrice < 10000) {
+      variation = 0.12; // ±12% для средних товаров
+    } else {
+      variation = 0.08; // ±8% для дорогих товаров
+    }
+    
     const randomFactor = 1 + (Math.random() - 0.5) * variation;
     const estimatedPrice = Math.round(basePrice * randomFactor);
     
@@ -298,8 +377,8 @@ async function getExternalPrice(storeName, productName, currentPrice, region = '
         return `${estimatedPrice.toLocaleString('uk-UA')}₴`;
     }
   } catch (error) {
-    console.warn(`Failed to get price from ${storeName}:`, error);
-    return null;
+    console.warn('Fallback price generation error:', error);
+    return 'Ціна недоступна';
   }
 }
 
@@ -319,172 +398,202 @@ async function getPriceComparisonStores(productName, currentPrice) {
     return fallback;
   };
 
+  // Определяем текущий магазин по URL
+  const currentStore = getCurrentStore();
+  
   let stores = [];
 
   // Магазины для Украины
   if (region === 'ukraine') {
-    // Получаем цены для украинских магазинов
-    const rozetkaPrice = currentPrice || await getExternalPrice('Rozetka', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
-    const promPrice = await getExternalPrice('Prom.ua', productName, currentPrice, region) || getLocalizedMessage('browse_offers', 'Переглянути пропозиції');
-    const googlePrice = await getExternalPrice('Google Shopping', productName, currentPrice, region) || getLocalizedMessage('search_prices', 'Пошук цін');
-    const comfyPrice = await getExternalPrice('Comfy', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
-    const foxtrotPrice = await getExternalPrice('Foxtrot', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
-    const alloPrice = await getExternalPrice('Allo', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
-    
-    stores = [
+    // Получаем цены для украинских магазинов (исключая текущий)
+    const allStores = [
       {
         name: 'Rozetka',
         icon: '🏪',
         description: getLocalizedMessage('rozetka_description', 'Український маркетплейс'),
-        price: rozetkaPrice,
         url: `https://rozetka.com.ua/search/?text=${encodeURIComponent(productName)}`
       },
       {
         name: 'Prom.ua',
         icon: '🛍️',
         description: getLocalizedMessage('prom_description', 'Український онлайн-магазин'),
-        price: promPrice,
         url: `https://prom.ua/search?search_term=${encodeURIComponent(productName)}`
       },
       {
         name: 'Comfy',
         icon: '🏠',
         description: 'Український магазин електроніки',
-        price: comfyPrice,
         url: `https://comfy.ua/search/?text=${encodeURIComponent(productName)}`
       },
       {
         name: 'Foxtrot',
         icon: '🦊',
         description: 'Український магазин техніки',
-        price: foxtrotPrice,
         url: `https://www.foxtrot.com.ua/uk/search?query=${encodeURIComponent(productName)}`
       },
       {
         name: 'Allo',
         icon: '📱',
         description: 'Український магазин мобільних',
-        price: alloPrice,
         url: `https://allo.ua/ua/search/?text=${encodeURIComponent(productName)}`
       },
       {
         name: 'Google Shopping',
         icon: '🛒',
         description: getLocalizedMessage('google_shopping_description', 'Порівняти ціни з різних магазинів'),
-        price: googlePrice,
         url: `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(productName)}&hl=uk`
       }
     ];
+
+    // Фильтруем магазины, исключая текущий
+    const filteredStores = allStores.filter(store => store.name !== currentStore);
+    
+    // Получаем цены для отфильтрованных магазинов
+    for (const store of filteredStores) {
+      if (store.name === 'Rozetka') {
+        store.price = currentPrice || await getExternalPrice('Rozetka', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
+      } else if (store.name === 'Prom.ua') {
+        store.price = await getExternalPrice('Prom.ua', productName, currentPrice, region) || getLocalizedMessage('browse_offers', 'Переглянути пропозиції');
+      } else if (store.name === 'Comfy') {
+        store.price = await getExternalPrice('Comfy', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
+      } else if (store.name === 'Foxtrot') {
+        store.price = await getExternalPrice('Foxtrot', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
+      } else if (store.name === 'Allo') {
+        store.price = await getExternalPrice('Allo', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Перевірити ціну');
+      } else if (store.name === 'Google Shopping') {
+        store.price = await getExternalPrice('Google Shopping', productName, currentPrice, region) || getLocalizedMessage('search_prices', 'Пошук цін');
+      }
+    }
+    
+    stores = filteredStores;
   }
   // Магазины для Европы
   else if (region === 'europe') {
-    // Получаем цены для европейских магазинов
-    const amazonPrice = currentPrice || await getExternalPrice('Amazon', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    const idealoPrice = await getExternalPrice('Idealo', productName, currentPrice, region) || getLocalizedMessage('find_deals', 'Find deals');
-    const googlePrice = await getExternalPrice('Google Shopping', productName, currentPrice, region) || getLocalizedMessage('search_prices', 'Search prices');
-    const mediamarktPrice = await getExternalPrice('MediaMarkt', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    const saturnPrice = await getExternalPrice('Saturn', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    const zalandoPrice = await getExternalPrice('Zalando', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    
-    stores = [
+    // Получаем цены для европейских магазинов (исключая текущий)
+    const allStores = [
       {
         name: 'Amazon',
         icon: '📦',
         description: getLocalizedMessage('amazon_description', 'Wide selection, fast delivery'),
-        price: amazonPrice,
         url: `https://www.amazon.${language === 'de' ? 'de' : language === 'fr' ? 'fr' : 'co.uk'}/s?k=${encodeURIComponent(productName)}`
       },
       {
         name: 'Idealo',
         icon: '🔍',
         description: getLocalizedMessage('idealo_description', 'Find the best deals'),
-        price: idealoPrice,
         url: `https://www.idealo.${language === 'de' ? 'de' : 'com'}/search?q=${encodeURIComponent(productName)}`
       },
       {
         name: 'MediaMarkt',
         icon: '🏪',
         description: 'Німецький магазин електроніки',
-        price: mediamarktPrice,
         url: `https://www.mediamarkt.de/de/search.html?query=${encodeURIComponent(productName)}`
       },
       {
         name: 'Saturn',
         icon: '🛰️',
         description: 'Німецький магазин техніки',
-        price: saturnPrice,
         url: `https://www.saturn.de/de/search.html?query=${encodeURIComponent(productName)}`
       },
       {
         name: 'Zalando',
         icon: '👕',
         description: 'Європейський модний магазин',
-        price: zalandoPrice,
         url: `https://www.zalando.${language === 'de' ? 'de' : language === 'fr' ? 'fr' : 'com'}/search?q=${encodeURIComponent(productName)}`
       },
       {
         name: 'Google Shopping',
         icon: '🛒',
         description: getLocalizedMessage('google_shopping_description', 'Compare prices from multiple stores'),
-        price: googlePrice,
         url: `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(productName)}&hl=${language}`
       }
     ];
+
+    // Фильтруем магазины, исключая текущий
+    const filteredStores = allStores.filter(store => store.name !== currentStore);
+    
+    // Получаем цены для отфильтрованных магазинов
+    for (const store of filteredStores) {
+      if (store.name === 'Amazon') {
+        store.price = currentPrice || await getExternalPrice('Amazon', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'Idealo') {
+        store.price = await getExternalPrice('Idealo', productName, currentPrice, region) || getLocalizedMessage('find_deals', 'Find deals');
+      } else if (store.name === 'MediaMarkt') {
+        store.price = await getExternalPrice('MediaMarkt', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'Saturn') {
+        store.price = await getExternalPrice('Saturn', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'Zalando') {
+        store.price = await getExternalPrice('Zalando', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'Google Shopping') {
+        store.price = await getExternalPrice('Google Shopping', productName, currentPrice, region) || getLocalizedMessage('search_prices', 'Search prices');
+      }
+    }
+    
+    stores = filteredStores;
   }
   // Магазины для Америки
   else {
-    // Получаем цены для американских магазинов
-    const amazonPrice = currentPrice || await getExternalPrice('Amazon', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    const ebayPrice = await getExternalPrice('eBay', productName, currentPrice, region) || getLocalizedMessage('browse_offers', 'Browse offers');
-    const googlePrice = await getExternalPrice('Google Shopping', productName, currentPrice, region) || getLocalizedMessage('search_prices', 'Search prices');
-    const walmartPrice = await getExternalPrice('Walmart', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    const bestbuyPrice = await getExternalPrice('Best Buy', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    const targetPrice = await getExternalPrice('Target', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
-    
-    stores = [
+    // Получаем цены для американских магазинов (исключая текущий)
+    const allStores = [
       {
         name: 'Amazon',
         icon: '📦',
         description: getLocalizedMessage('amazon_description', 'Wide selection, fast delivery'),
-        price: amazonPrice,
         url: `https://www.amazon.com/s?k=${encodeURIComponent(productName)}`
       },
       {
         name: 'eBay',
         icon: '🛒',
         description: getLocalizedMessage('ebay_description', 'Online marketplace'),
-        price: ebayPrice,
         url: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(productName)}`
       },
       {
         name: 'Walmart',
         icon: '🏪',
         description: 'Американський супермаркет',
-        price: walmartPrice,
         url: `https://www.walmart.com/search?q=${encodeURIComponent(productName)}`
       },
       {
         name: 'Best Buy',
         icon: '💻',
         description: 'Американський магазин електроніки',
-        price: bestbuyPrice,
         url: `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(productName)}`
       },
       {
         name: 'Target',
         icon: '🎯',
         description: 'Американський роздрібний магазин',
-        price: targetPrice,
         url: `https://www.target.com/s?searchTerm=${encodeURIComponent(productName)}`
       },
       {
         name: 'Google Shopping',
         icon: '🛒',
         description: getLocalizedMessage('google_shopping_description', 'Compare prices from multiple stores'),
-        price: googlePrice,
         url: `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(productName)}`
       }
     ];
+
+    // Фильтруем магазины, исключая текущий
+    const filteredStores = allStores.filter(store => store.name !== currentStore);
+    
+    // Получаем цены для отфильтрованных магазинов
+    for (const store of filteredStores) {
+      if (store.name === 'Amazon') {
+        store.price = currentPrice || await getExternalPrice('Amazon', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'eBay') {
+        store.price = await getExternalPrice('eBay', productName, currentPrice, region) || getLocalizedMessage('browse_offers', 'Browse offers');
+      } else if (store.name === 'Walmart') {
+        store.price = await getExternalPrice('Walmart', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'Best Buy') {
+        store.price = await getExternalPrice('Best Buy', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'Target') {
+        store.price = await getExternalPrice('Target', productName, currentPrice, region) || getLocalizedMessage('check_price', 'Check price');
+      } else if (store.name === 'Google Shopping') {
+        store.price = await getExternalPrice('Google Shopping', productName, currentPrice, region) || getLocalizedMessage('search_prices', 'Search prices');
+      }
+    }
+    
+    stores = filteredStores;
   }
 
   return stores;
