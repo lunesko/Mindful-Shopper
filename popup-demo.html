@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindful Shopper Popup Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .header h2 {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-size: 20px;
+        }
+        
+        .header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .product-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .product-info h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .product-info p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .stores-section {
+            margin-bottom: 20px;
+        }
+        
+        .stores-section h4 {
+            margin: 0 0 12px 0;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stores-section h4 span {
+            margin-right: 8px;
+        }
+        
+        .stores-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        .store-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+        
+        .store-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .store-item:last-child {
+            border-bottom: none;
+        }
+        
+        .store-icon {
+            width: 32px;
+            height: 32px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .store-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .store-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+        
+        .store-description {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .store-price {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-left: 12px;
+        }
+        
+        .store-price-value {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+        
+        .store-link {
+            background: #ff9800;
+            color: white;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 4px;
+            transition: all 0.2s;
+        }
+        
+        .store-link:hover {
+            background: #f57c00;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .action-button {
+            flex: 1;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .add-to-wishlist {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .add-to-wishlist:hover {
+            background: #45a049;
+        }
+        
+        .continue-purchase {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .continue-purchase:hover {
+            background: #1976d2;
+        }
+        
+        .close-button {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .close-button:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="header">
+            <div class="icon">🛒</div>
+            <h2>Mindful Shopper</h2>
+            <p>Pause before you purchase. Choose mindfully.</p>
+        </div>
+        
+        <div class="product-info">
+            <h3>Power Bank, 20000 mAh Power Bank, Quick Charge Function, 22.5 W USB-C PD3.0 & QC4.0, Portable External Mobile Phone Batteries with LED Display, Compatible with iPhone 16 Pro Max 15 14 13 Samsung</h3>
+            <p>€29.99</p>
+        </div>
+
+        <div class="stores-section">
+            <h4>
+                <span>💰</span>
+                Stores for purchase
+            </h4>
+            <div class="stores-list">
+                <div class="store-item">
+                    <div class="store-icon">📦</div>
+                    <div class="store-info">
+                        <div class="store-name">Amazon</div>
+                        <div class="store-description">Wide selection, fast delivery</div>
+                    </div>
+                    <div class="store-price">
+                        <div class="store-price-value">€29.99</div>
+                        <a href="#" class="store-link">To store</a>
+                    </div>
+                </div>
+                
+                <div class="store-item">
+                    <div class="store-icon">🛒</div>
+                    <div class="store-info">
+                        <div class="store-name">Google Shopping</div>
+                        <div class="store-description">Compare prices from multiple stores</div>
+                    </div>
+                    <div class="store-price">
+                        <div class="store-price-value">Search prices</div>
+                        <a href="#" class="store-link">To store</a>
+                    </div>
+                </div>
+                
+                <div class="store-item">
+                    <div class="store-icon">🏪</div>
+                    <div class="store-info">
+                        <div class="store-name">Rozetka</div>
+                        <div class="store-description">Ukrainian marketplace</div>
+                    </div>
+                    <div class="store-price">
+                        <div class="store-price-value">Check price</div>
+                        <a href="#" class="store-link">To store</a>
+                    </div>
+                </div>
+                
+                <div class="store-item">
+                    <div class="store-icon">🛍️</div>
+                    <div class="store-info">
+                        <div class="store-name">Prom.ua</div>
+                        <div class="store-description">Ukrainian online marketplace</div>
+                    </div>
+                    <div class="store-price">
+                        <div class="store-price-value">Browse offers</div>
+                        <a href="#" class="store-link">To store</a>
+                    </div>
+                </div>
+                
+                <div class="store-item">
+                    <div class="store-icon">💰</div>
+                    <div class="store-info">
+                        <div class="store-name">PriceRunner</div>
+                        <div class="store-description">Price comparison site</div>
+                    </div>
+                    <div class="store-price">
+                        <div class="store-price-value">Compare prices</div>
+                        <a href="#" class="store-link">To store</a>
+                    </div>
+                </div>
+                
+                <div class="store-item">
+                    <div class="store-icon">🔍</div>
+                    <div class="store-info">
+                        <div class="store-name">Idealo</div>
+                        <div class="store-description">Find the best deals</div>
+                    </div>
+                    <div class="store-price">
+                        <div class="store-price-value">Find deals</div>
+                        <a href="#" class="store-link">To store</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-button add-to-wishlist">💡 Add to Mindful Wishlist</button>
+            <button class="action-button continue-purchase">🛒 Continue Purchase</button>
+        </div>
+
+        <button class="close-button">Close</button>
+    </div>
+</body>
+</html>
